@@ -2,6 +2,18 @@
 import React from 'react'
 import PropTypes from "prop-types"
 
+
+/**
+ * Modal component
+ * @param {string} title - The title of the modal
+ * @param {boolean} isOpen - The state of the modal
+ * @param {function} onClose - The function to close the modal
+ * @param {function} onConfirm - The function to confirm the action
+ * @param {any} children - The children of the modal
+ * @returns {JSX.Element}
+ * @example <Modal isOpen={isOpen} title={"Add Recipe"} onClose={onClose} onConfirm={onConfirm}>
+ * </Modal>
+ */
 const Modal = (props) => {
   return (
     <div
@@ -41,7 +53,5 @@ Modal.propTypes = {
     onConfirm: PropTypes.func
 
 }
-
-Modal.de
 
 export default Modal;

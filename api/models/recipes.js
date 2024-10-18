@@ -56,14 +56,5 @@ const Receta = sequelize.define('Receta', {
   init: true
 });
 
-// // Import Usuario model here
-// import Usuario from './user.js';
-
-// Define the association
-// Receta.belongsTo(Usuario, { as: 'usuario', foreignKey: 'usuarioId' });
-
-// Receta.associate = models => {
-//   Receta.belongsTo(models.Usuario, { as: 'usuario', foreignKey: 'usuarioId' });
-// };
 
 export default Receta;

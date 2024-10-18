@@ -62,7 +62,16 @@ Crea una nueva receta para un usuario específico.
 - **Método:** POST
 - **Parámetros de ruta:**
   - `username` (obligatorio): username del usuario para el cual se creará la receta.
-- **Cuerpo de la solicitud:** Objeto JSON con los atributos de la receta (titulo y descripcion).
+- **Cuerpo de la solicitud:** Objeto JSON con los siguientes atributos de la receta:
+  - `name` (obligatorio): Nombre de la receta.
+  - `time` (obligatorio): Tiempo estimado de preparación (en formato string).
+  - `descripcion` (obligatorio): Descripción detallada de la receta.
+  - `image` (obligatorio): URL o referencia de la imagen de la receta.
+  - `difficulty` (obligatorio): Nivel de dificultad (en formato texto).
+  - `vegan` (opcional): Indica si la receta es vegana (booleano).
+  - `spicy` (opcional): Indica si la receta es picante (booleano).
+  - `fish` (opcional): Indica si la receta contiene pescado (booleano).
+  - `meat` (opcional): Indica si la receta contiene carne (booleano).
 - **Respuesta exitosa:**
   - Código de estado: 201 Created
   - Contenido: Receta recién creada con sus atributos.
@@ -75,18 +84,16 @@ Actualiza una receta existente.
 - **Método:** PUT
 - **Parámetros de ruta:**
   - `recipeId` (obligatorio): ID de la receta que se desea actualizar.
-- **Cuerpo de la solicitud:** Objeto JSON con los atributos de la receta a actualizar.
+- **Cuerpo de la solicitud:** Objeto JSON con los siguientes atributos de la receta a actualizar:
+  - `name` (opcional): Nombre de la receta.
+  - `time` (opcional): Tiempo estimado de preparación.
+  - `descripcion` (opcional): Descripción detallada de la receta.
+  - `image` (opcional): URL o referencia de la imagen.
+  - `difficulty` (opcional): Nivel de dificultad.
+  - `vegan` (opcional): Indica si la receta es vegana.
+  - `spicy` (opcional): Indica si la receta es picante.
+  - `fish` (opcional): Indica si la receta contiene pescado.
+  - `meat` (opcional): Indica si la receta contiene carne.
 - **Respuesta exitosa:**
   - Código de estado: 200 OK
   - Contenido: Receta actualizada con sus atributos.
-
-## Eliminar una Receta
-
-Elimina una receta existente.
-
-- **URL:** `/recetas/:recipeId`
-- **Método:** DELETE
-- **Parámetros de ruta:**
-  - `recipeId` (obligatorio): ID de la receta que se desea eliminar.
-- **Respuesta exitosa:**
-  - Código de estado: 204 No Content
