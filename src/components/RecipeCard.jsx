@@ -2,7 +2,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const RecipeCard = ({receta}) => {
+const RecipeCard = ({ receta }) => {
   return (
     <>
         <img
