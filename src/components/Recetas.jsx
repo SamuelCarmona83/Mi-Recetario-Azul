@@ -6,12 +6,38 @@ const Recetas = () => {
   const urlRecetas = `https://miniature-memory-6r9v5rp6qp6f5gx9-5001.app.github.dev/usuarios/Beli/recetas`;
   const [ recetas, setRecetas ] = useState([])
   const [ loading, setLoading ] = useState(false);
-  const [ newRecipe, setNewRecipe] = useState({}) // <--- objeto vacio
-  const [ isModalOpen, setIsModalOpen ] = useState(true);
+  const [ newRecipe, setNewRecipe] = useState({})
+  const [ isModalOpen, setIsModalOpen ] = useState(false);
   
   const campos =  ['name', 'descripcion', 'image', 'time', 'difficulty'];
 
-  useEffect(() => { // <--- Acá no se puede definir async
+  const createRecipe = async (newRecipe) => {
+    try{
+      setLoading(true);
+      const additionalSettings = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newRecipe) 
+      };
+      const resp = await fetch(urlRecetas, additionalSettings);
+      const data = await resp.json()
+      if (resp.ok) {
+        
+        setIsModalOpen(false);
+        setNewRecipe({});
+  
+        setRecetas([ ...recetas, data])
+      }
+    } catch(err){
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { 
     const loadRecipes = async () => {
       setLoading(true)
       try {
@@ -54,7 +80,7 @@ const Recetas = () => {
       </button>
       <Modal isOpen={isModalOpen} title={"Agregar una receta 💚"}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={() => console.log(newRecipe)}
+        onConfirm={() => createRecipe(newRecipe)}
       >
         {
           campos.map((campo, index) => {
