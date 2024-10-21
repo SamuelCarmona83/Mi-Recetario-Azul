@@ -9,6 +9,8 @@ const Recetas = () => {
   const [ newRecipe, setNewRecipe] = useState({}) // <--- objeto vacio
   const [ isModalOpen, setIsModalOpen ] = useState(true);
   
+  const campos =  ['name', 'descripcion', 'image', 'time', 'difficulty'];
+
   useEffect(() => { // <--- Acá no se puede definir async
     const loadRecipes = async () => {
       setLoading(true)
@@ -54,26 +56,17 @@ const Recetas = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={() => console.log(newRecipe)}
       >
-        <label className="font-bold">Nombre</label>
-        <input className="text-green-800" placeholder="Nombre" value={newRecipe.name || ''}
-          onChange={(event) => setNewRecipe({ ...newRecipe, name: event.target.value })}
-        />
-        <label className="font-bold">Descripción</label>
-        <input className="text-green-800" placeholder="Pequeña descripcion de la receta"
-          value={newRecipe.descripcion || ''} onChange={(event) => setNewRecipe({ ...newRecipe, descripcion: event.target.value })}
-        />
-        <label className="font-bold">Url de la imagen</label>
-        <input className="text-green-800" placeholder="http://" 
-          value={newRecipe.image || ''} onChange={(event) => setNewRecipe({ ...newRecipe, image: event.target.value })}
-        />
-        <label className="font-bold">Tiempo de Preparación</label>
-        <input className="text-green-800" placeholder="5mins" 
-          value={newRecipe.time || ''} onChange={(event) => setNewRecipe({ ...newRecipe, time: event.target.value })}
-        />
-        <label className="font-bold">Dificultad</label>
-        <input className="text-green-800" placeholder="intermedio"
-          value={newRecipe.difficulty || ''} onChange={(event) => setNewRecipe({ ...newRecipe, difficulty: event.target.value })}
-        />
+        {
+          campos.map((campo, index) => {
+            return (<div key={index} className="flex flex-col">
+              <label className="font-bold">{campo}</label>
+              <input className="text-green-800" placeholder={campo} value={newRecipe[campo] || ''}
+                onChange={(event) => setNewRecipe({ ...newRecipe, [campo]: event.target.value })}
+              />
+            </div>
+            )
+          })
+        }
       </Modal>
     </>
   );
