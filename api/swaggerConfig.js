@@ -11,6 +11,16 @@ const swaggerDefinition = {
             email: "samuel.carmona.rodrigz@gmail.com",
         },
     },
+    tags: [
+        {
+            name: "Usuarios",
+            description: "Operaciones con usuarios",
+        },
+        {
+            name: "Recetas",
+            description: "Operaciones con recetas",
+        }
+    ],
 };
 
 const options = {
