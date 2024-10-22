@@ -25,6 +25,17 @@ export const crearReceta = async (req, res) => {
 // Obtener todas las recetas de un usuario
 export const obtenerRecetasUsuario = async (req, res) => {
   const { username } = req.params;
+
+  const searchedUser = await Usuario.findOne({
+    where: {
+      username
+    }
+  });
+
+  if (!searchedUser) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
   try {
     const recetas = await Usuario.findOne(
       {
