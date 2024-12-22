@@ -22,7 +22,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"lefd.sweetdracula-monokai"
+				"lefd.sweetdracula-monokai",
+				"GitHub.copilot"
 			],
 			"settings": {
 				"workbench.colorTheme": "Sweet Dracula Monokai",
