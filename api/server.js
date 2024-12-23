@@ -7,6 +7,8 @@ import cors from 'cors';
 import userRoutes from "./routes/user.js"
 import recipeRoutes from "./routes/recipe.js"
 import addressRoutes from "./routes/address.js"
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express()
 const port = process.env.PORT || 5001
@@ -16,18 +18,24 @@ app.use(cors())
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use(userRoutes)
-app.use(recipeRoutes)
-app.use(addressRoutes)
+app.use('/api', userRoutes)
+app.use('/api', recipeRoutes)
+app.use('/api', addressRoutes)
 
-app.get("/", (req, res) => {
+app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), '../dist')));
+
+app.get("/", (_, res) => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+app.get("/api/", (req, res) => {
   try {
     // Check if running inside a Codespace and construct the proper URL
     const codespaceUrl = process.env.CODESPACE_NAME 
-      ? `http://${process.env.CODESPACE_NAME}-5001.app.github.dev` // Correct URL format for GitHub Codespaces
-      : `${req.protocol}://${req.get('host')}`; // Fallback for local development or other environments
-
-    
+      ? `http://${process.env.CODESPACE_NAME}-5001.app.github.dev`
+      : `${req.protocol}://${req.get('host')}`;
 
     res.status(200).json({
       message: "connected to api 📕",
@@ -52,18 +60,15 @@ app.delete("/restart_db", (req, res) => {
 })
 
 
-
-// Conexión a la base de datos y sincronización de modelos
 sequelize
   .authenticate()
   .then(() => {
     console.log('Conexión a la base de datos establecida. 📍')
     return sequelize.sync({
       alter: true
-    }) // Esto sincroniza los modelos con la base de datos
+    })
   })
   .then(() => {
-    //console.log('Modelos sincronizados con la base de datos.');
     app.listen(port, () => {
       console.log(`Servidor Express en funcionamiento en el puerto ${port}.`)
     });
