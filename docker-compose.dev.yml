@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Database for development
+  postgres:
+    image: postgres:15-alpine
+    container_name: mi-recetario-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-example}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Frontend development server
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: mi-recetario-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_BACKEND_URL=http://localhost:5001
+    networks:
+      - app-network
+    command: npm run dev
+
+  # Backend development server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: mi-recetario-backend-dev
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      PORT: 5001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-example}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    command: npm run backend
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

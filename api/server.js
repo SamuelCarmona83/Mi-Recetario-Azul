@@ -7,6 +7,9 @@ import cors from 'cors';
 import userRoutes from "./routes/user.js"
 import recipeRoutes from "./routes/recipe.js"
 import addressRoutes from "./routes/address.js"
+// Import models for initial data setup
+import Usuario from "./models/user.js"
+import md5 from "blueimp-md5"
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -22,9 +25,26 @@ app.use('/api', userRoutes)
 app.use('/api', recipeRoutes)
 app.use('/api', addressRoutes)
 
+// Health check endpoint for Docker
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), '../dist')));
 
 app.get("/", (_, res) => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+// Handle all other routes by serving the React app
+app.get('*', (req, res) => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   res.sendFile(path.join(__dirname, '../dist/index.html'));
@@ -68,7 +88,28 @@ sequelize
       alter: true
     })
   })
-  .then(() => {
+  .then(async () => {
+    // Create default user if it doesn't exist
+    try {
+      const [user, created] = await Usuario.findOrCreate({
+        where: { username: 'beli' },
+        defaults: {
+          username: 'beli',
+          name: 'Beli',
+          email: 'beli@example.com',
+          password: md5('password123'),
+          isActive: true
+        }
+      });
+      if (created) {
+        console.log('🙋‍♀️ Default user "beli" created');
+      } else {
+        console.log('👤 User "beli" already exists');
+      }
+    } catch (error) {
+      console.log('⚠️ Could not create default user:', error.message);
+    }
+
     app.listen(port, () => {
       console.log(`Servidor Express en funcionamiento en el puerto ${port}.`)
     });

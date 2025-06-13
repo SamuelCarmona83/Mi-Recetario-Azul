@@ -3,7 +3,10 @@ import RecipeCard from "./RecipeCard";
 import Modal from "./Modal"
 
 const Recetas = () => {
-  const urlRecetas = `https://miniature-memory-6r9v5rp6qp6f5gx9-5001.app.github.dev/usuarios/Beli/recetas`;
+  // In production, the frontend and backend run on the same server
+  // In development, use VITE_BACKEND_URL if provided, otherwise default to relative path
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+  const urlRecetas = `${backendUrl}/api/usuarios/beli/recetas`;
   const [ recetas, setRecetas ] = useState([])
   const [ loading, setLoading ] = useState(false);
   const [ newRecipe, setNewRecipe] = useState({})
@@ -14,6 +17,7 @@ const Recetas = () => {
   const createRecipe = async (newRecipe) => {
     try{
       setLoading(true);
+      const createUrl = `${backendUrl}/api/usuarios/beli/recetas`; // Correct endpoint for creating recipes
       const additionalSettings = {
         method: 'POST',
         headers: {
@@ -21,7 +25,7 @@ const Recetas = () => {
         },
         body: JSON.stringify(newRecipe) 
       };
-      const resp = await fetch(urlRecetas, additionalSettings);
+      const resp = await fetch(createUrl, additionalSettings);
       const data = await resp.json()
       if (resp.ok) {
         

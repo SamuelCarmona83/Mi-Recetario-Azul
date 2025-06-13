@@ -7,4 +7,20 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  define: {
+    // Make sure environment variables are available during build
+    'import.meta.env.VITE_BACKEND_URL': JSON.stringify(process.env.VITE_BACKEND_URL || ''),
+  },
+  build: {
+    // Generate source maps for better debugging in production
+    sourcemap: false,
+    // Optimize build output
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom']
+        }
+      }
+    }
+  }
 })
