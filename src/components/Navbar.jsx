@@ -6,7 +6,7 @@ const Navbar = () => {
     <div className='flex flex-row h-16 justify-between p-8 items-center sticky top-0 z-[100] bg-green-600 w-full '>
         <h2 className='text-lg font-bold'>
             
-        <i className='fa-solid fa-book mx-1'></i>COCINANDO CON BELI
+        <i className='fa-solid fa-book mx-1'></i>COCINANDO CON ERNESTO
         </h2>
         <button>
             <i className='fa-solid fa-bars'></i>
