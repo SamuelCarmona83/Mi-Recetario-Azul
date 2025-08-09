@@ -1,3 +1,4 @@
+import 'dotenv/config';
 /* eslint-disable no-undef */
 import  express from 'express'
 import sequelize from "./sequelizeConfig.js"
@@ -35,35 +36,114 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), '../dist')));
+// Development endpoint to list all available routes
+app.get('/api/routes', (req, res) => {
+  if (process.env.NODE_ENV !== 'development') {
+    return res.status(404).json({ message: 'Not found' });
+  }
 
-app.get("/", (_, res) => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  const routes = [];
+
+  // Function to extract routes from express app
+  const extractRoutes = (stack, basePath = '') => {
+    stack.forEach(layer => {
+      if (layer.route) {
+        // Direct route
+        const methods = Object.keys(layer.route.methods);
+        methods.forEach(method => {
+          routes.push({
+            method: method.toUpperCase(),
+            path: basePath + layer.route.path,
+            description: getRouteDescription(method.toUpperCase(), basePath + layer.route.path)
+          });
+        });
+      } else if (layer.name === 'router' && layer.regexp) {
+        // Router middleware
+        const routerBasePath = basePath + extractPathFromRegex(layer.regexp);
+        if (layer.handle && layer.handle.stack) {
+          extractRoutes(layer.handle.stack, routerBasePath);
+        }
+      }
+    });
+  };
+
+  // Helper function to extract path from regex
+  const extractPathFromRegex = (regex) => {
+    const match = regex.source.match(/\^\\?\/(.+?)\\\//);
+    return match ? '/' + match[1] : '';
+  };
+
+  // Helper function to get route descriptions
+  const getRouteDescription = (method, path) => {
+    const descriptions = {
+      'GET /api/': 'API information',
+      'GET /api/health': 'Health check',
+      'POST /api/usuarios': 'Create user',
+      'GET /api/usuarios': 'Get all users',
+      'GET /api/usuarios/:username': 'Get user by username',
+      'PUT /api/usuarios/:id': 'Update user',
+      'DELETE /api/usuarios/:id': 'Delete user',
+      'POST /api/usuarios/:username/recetas': 'Create recipe for user',
+      'GET /api/usuarios/:username/recetas': 'Get user recipes',
+      'GET /api/recetas/:id': 'Get recipe by ID',
+      'PUT /api/recetas/:id': 'Update recipe',
+      'DELETE /api/recetas/:id': 'Delete recipe',
+      'POST /api/addresses': 'Create address',
+      'GET /api/addresses': 'Get all addresses'
+    };
+    return descriptions[`${method} ${path}`] || 'No description available';
+  };
+
+  // Extract routes from the app
+  extractRoutes(app._router.stack);
+
+  // Sort routes by path
+  routes.sort((a, b) => a.path.localeCompare(b.path));
+
+  res.json({
+    message: 'Available API routes (Development mode only)',
+    baseUrl: `http://localhost:${port}`,
+    swaggerDocs: `http://localhost:${port}/docs`,
+    routes: routes
+  });
 });
 
-// Handle all other routes by serving the React app
-app.get('*', (req, res) => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
-});
+// Serve static frontend only in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), '../dist')));
+}
 
-app.get("/api/", (req, res) => {
-  try {
-    // Check if running inside a Codespace and construct the proper URL
-    const codespaceUrl = process.env.CODESPACE_NAME 
+const entryPoint = (req, res) => {
+  const codespaceUrl = process.env.CODESPACE_NAME 
       ? `http://${process.env.CODESPACE_NAME}-5001.app.github.dev`
       : `${req.protocol}://${req.get('host')}`;
+  res.json({
+    name: 'Mi Recetario Azul API',
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0',
+    docsUrl: `${codespaceUrl}/docs`,
+    docs: '/docs',
+    health: '/api/health',
+    routes: '/api/routes',
+    message: 'Bienvenido a la API de Mi Recetario Azul. Visita /api/routes para ver todos los endpoints.'
+  });
+}
+app.get('/api/', entryPoint);
+app.get('/', entryPoint);
 
-    res.status(200).json({
-      message: "connected to api 📕",
-      docs: `${codespaceUrl}/docs`,
-    });
-  } catch (error) {
-    res.status(400).json({ error: 'Error ' + error });
+// Catch-all for all other routes
+app.get('*', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    const indexPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../dist/index.html');
+    return res.sendFile(indexPath);
   }
+  res.status(404).json({
+    error: 'Ruta no encontrada',
+    environment: process.env.NODE_ENV || 'development',
+    docs: '/docs',
+    api: '/api/',
+    message: 'Estás en el backend. Visita /docs para la documentación Swagger o /api/routes para los endpoints.'
+  });
 });
 
 app.delete("/restart_db", (req, res) => {
@@ -78,7 +158,6 @@ app.delete("/restart_db", (req, res) => {
       res.status(500).json({ error: 'Error restarting the database: ' + error });
     });
 })
-
 
 sequelize
   .authenticate()

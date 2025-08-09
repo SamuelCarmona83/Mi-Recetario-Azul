@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 const RecipeCard = ({ receta }) => {
   return (
-    <>
+    <div className="p-2 m-4 border-1 border-slate-100">
         <img
           src={receta.image}
           alt={receta.imageAlt}
@@ -24,7 +24,7 @@ const RecipeCard = ({ receta }) => {
           </p>
           </div>
         </div>
-    </>
+    </div>
   );
 };
 

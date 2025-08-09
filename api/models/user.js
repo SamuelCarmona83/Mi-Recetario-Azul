@@ -19,7 +19,8 @@ const Usuario = sequelize.define('Usuario', {
   },
   isActive: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: true,
   },
   email: {
     type: DataTypes.STRING,
